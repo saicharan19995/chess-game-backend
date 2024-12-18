@@ -1,4 +1,5 @@
 const express = require('express');
+const { getPossibleMoves } = require('../services/moves');
 const Game = require('../models/game');
 const router = express.Router();
 
@@ -43,6 +44,20 @@ router.get('/:gameId/status', (req, res) => {
     if (!game) return res.status(404).send('Game not found');
 
     res.json({ status: game.getStatus() });
+});
+
+
+router.post('/possible-moves', (req, res) => {
+    const {gameId, position } = req.body;
+    const game = games.get(gameId);
+    if (!game) return res.status(404).send('Game not found');
+
+    try {
+        const possibleMoves = getPossibleMoves(game.board, position, game.turn);
+        res.json({possibleMoves});
+    }catch (error) {
+        res.status(400).json({error: error.message});
+    }
 });
 
 module.exports = router;
